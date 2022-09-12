@@ -1,0 +1,42 @@
+{
+  "name": "releases",
+  "version": "1.0.0",
+  "description": "JMMC applications's latest releases",
+  "homepage": "",
+  "bugs": "",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "keywords": [
+    "exist",
+    "exist-db",
+    "xml",
+    "xql",
+    "xquery"
+  ],
+  "author": {
+    "name": "JMMC Tech Group",
+    "email": "jmmc-tech-group@jmmc.fr"
+  },
+  "license": "AGPL-3.0",
+  "scripts": {
+    "test": "mocha test/mocha/ --recursive --exit && mocha test/xqs/*.js",
+    "cypress": "cypress run"
+  },
+  "repository": "",
+  "devDependencies": {
+    "chai": "^4.3.6",
+    "chai-xml": "^0.4.0",
+    "cypress": "^10.7.0",
+    "fs-extra": "^10.1.0",
+    "mocha": "^10.0.0",
+    "supertest": "^6.2.4",
+    "xmldoc": "^1.2.0",
+    "yeoman-assert": "^3.1.1"
+  },
+  "dependencies": {
+    "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.9.1",
+    "jquery": "3.6.0"
+  }
+}

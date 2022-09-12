@@ -1,0 +1,78 @@
+{
+    "new-server": {
+        "url" : "http://www.jmmc.fr",
+        "exist-apps" : {
+        }
+    },
+    "java-apps-servers": {
+        "url" : "http://www.jmmc.fr",
+        "java-apps" : {
+            "AppLauncher": {
+                "public": {
+                    "url": "/apps/public/AppLauncher/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/AppLauncher/"
+                },
+                "beta": {
+                    "url": "/apps/beta/AppLauncher/"
+                }
+            },
+            "LITpro": {
+                "public": {
+                    "url": "/apps/public/LITpro/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/LITpro/"
+                },
+                "beta": {
+                    "url": "/apps/beta/LITpro/"
+                }
+            },
+            "Aspro2": {
+                "public": {
+                    "url": "/apps/public/Aspro2/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/Aspro2/"
+                },
+                "beta": {
+                    "url": "/apps/beta/Aspro2/"
+                }
+            },
+            "OImaging": {
+                "public": {
+                    "url": "/apps/public/OImaging/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/OImaging/"
+                },
+                "beta": {
+                    "url": "/apps/beta/OImaging/"
+                }
+            },
+            "SearchCal": {
+                "public": {
+                    "url": "/apps/public/SearchCal/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/SearchCal/"
+                },
+                "beta": {
+                    "url": "/apps/beta/SearchCal/"
+                }
+            },
+            "OIFitsExplorer": {
+                "public": {
+                    "url": "/apps/public/OIFitsExplorer/"
+                },
+                "dev": {
+                    "url": "/apps/alpha/OIFitsExplorer/"
+                },
+                "beta": {
+                    "url": "/apps/beta/OIFitsExplorer/"
+                }
+            }
+        }
+    }
+}

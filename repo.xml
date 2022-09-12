@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<meta 
+  xmlns="http://exist-db.org/xquery/repo">
+  <description>JMMC applications's latest releases</description>
+  <author>JMMC Tech Group</author>
+  <website>https://www.jmmc.fr</website>
+  <status>alpha</status>
+  <license>AGPL-3.0</license>
+  <copyright>true</copyright>
+  <type>application</type>
+  <target>releases</target>
+  <prepare>pre-install.xq</prepare>
+  <finish>post-install.xq</finish>
+</meta>
