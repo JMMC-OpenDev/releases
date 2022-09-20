@@ -41,7 +41,7 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*))
             let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
                 then
                     let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
-                    return <span>This page is beeing refresh in backgroup.</span>
+                    return <span>This page is beiing refresh in background.</span>
                 else
                     <span></span>
             return
