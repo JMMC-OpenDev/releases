@@ -31,10 +31,11 @@ if ($exist:path eq '') then
   (: the html page is run through view.xql to expand templates :)
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
         <view>
-          <forward url="{$exist:controller}/modules/view.xq"/>
-          <set-header name="Cache-Control" value="no-cache, no-store, must-revalidate"/>
-          <set-header name="Pragma" value="no-cache"/>
-          <set-header name="Expires" value="0"/>
+          <forward url="{$exist:controller}/modules/view.xq">
+            <set-header name="Cache-Control" value="no-cache, no-store, must-revalidate"/>
+            <set-header name="Pragma" value="no-cache"/>
+            <set-header name="Expires" value="0"/>
+          </forward>
         </view>
         <error-handler>
       	  <forward url="{$exist:controller}/error-page.html" method="get"/>

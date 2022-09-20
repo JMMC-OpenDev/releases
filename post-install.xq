@@ -14,4 +14,5 @@ declare variable $dir external;
 (: the target collection into which the app is deployed :)
 declare variable $target external;
 
-1 + 1
+
+sm:chmod( xs:anyURI($target || '/' || 'modules/schedule-job.xql'), 'rwsr-xr-x' )

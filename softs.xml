@@ -1,7 +1,16 @@
 <services>
+    <!-- list pypi modules -->
     <pypi>
         <module>a2p2</module>
     </pypi>
+    <!-- list repo that represent an application or public library without associated instance -->
+    <repos>
+        <github>
+            <location>https://github.com/JMMC-OpenDev/oitools/</location>
+            <category>Java</category>
+        </github>
+    </repos>
+    <!-- list public existdb applications -->
     <exist>
         <app>
             <name>CatalogAPI</name>
@@ -57,6 +66,7 @@
             </release>
         </app>
     </exist>
+    <!-- list simple web applications -->
     <web>
         <app>
             <name>AMHRA</name>

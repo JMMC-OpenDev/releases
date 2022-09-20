@@ -14,7 +14,10 @@ import module namespace lib="http://exist-db.org/xquery/html-templating/lib";
 import module namespace config="http://exist.jmmc.fr/releases/apps/releases/config" at "config.xqm";
 
 declare variable $app:cache-name := "releasecache";
-declare variable $app:cache := cache:create($app:cache-name, map { "maximumSize": 1000, "expireAfterAccess": 1800 });
+declare variable $app:cache-expire-delay-seconds := 120;
+declare variable $app:cache := cache:create($app:cache-name, map { "maximumSize": 1000 });
+declare variable $app:cache-last-mods-key := "last-mod";
+declare variable $app:cache-table-key := "whole-table";
 
 declare %templates:wrap function app:dyn-nav-li($node as node(), $model as map(*)) {
     ()
@@ -28,120 +31,174 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*))
     <div>
         <h1>JMMC's applications and services releases</h1>
         <p>Please find below public and beta links to run our Java applications (JAR or JavaWebStart) , get release notes, credits, details...</p>
-        {app:release-table()}
+        {
+            let $t := cache:get($app:cache-name, $app:cache-table-key)
+            return
+                if(exists($t)) then $t else app:release-table(true())
+            ,
+            let $last-mods := xs:dateTime(cache:get($app:cache-name, $app:cache-last-mods-key))
+            let $delay := (current-dateTime() - $last-mods) div xs:dayTimeDuration('PT1S')
+            let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
+                then
+                    let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
+                    return <span>This page is beeing refresh in backgroup.</span>
+                else
+                    <span></span>
+            return
+                (<pre>Current date: {app:format-date(current-dateTime())} Generated on: {app:format-date($last-mods)}</pre>, $plan-refresh)
+        }
     </div>
 };
 
-declare function app:json-doc($href as xs:string)
+
+declare function app:format-date($date){
+    let $input := string($date)
+    return
+        <span title="{$input}">{
+            if(contains($input, "-")) then substring($input, 1,16) else $input
+        }</span>
+};
+
+declare function app:json-doc($href as xs:string, $use-cache as xs:boolean)
 {
     let $key := data($href)
     let $val := cache:get($app:cache-name, $key)
     return
-        if(exists($val)) then $val
+        if(exists($val) and $use-cache) then $val
         else
+            let $log := util:log("info", "cache refreshed to get " || $href)
             let $val := json-doc($href)
             let $store := cache:put($app:cache-name, $key, $val)
-            let $log := util:log("info", "get " || $href)
+            let $last-mods := cache:put($app:cache-name, $app:cache-last-mods-key, current-dateTime())
             return $val
 };
 
-declare function app:doc($href as xs:string)
+declare function app:doc($href as xs:string,$use-cache as xs:boolean)
 {
     let $key := data($href)
     let $val := cache:get($app:cache-name, $key)
     return
-        if(exists($val)) then $val
+        if(exists($val) and $use-cache) then $val
         else
+            let $log := util:log("info", "cache refreshed to get " || $href)
             let $val := doc($href)
             let $store := cache:put($app:cache-name, $key, $val)
-            let $log := util:log("info", "get " || $href)
+            let $last-mods := cache:put($app:cache-name, $app:cache-last-mods-key, current-dateTime())
             return $val
 };
 
-declare function app:release-table(){
-    <table class="table table-light table-bordered align-middle">
+declare function app:release-table($use-cache as xs:boolean){
+    let $apps := map:merge((
+        for $jnlp in app:get-softs()//jnlp
+            let $name := $jnlp/name
+            let $server-url := $jnlp/ancestor::server/url
+            let $release := $jnlp/release[1]
+            let $href := $server-url || $release/location  || $name ||".jnlp"
+            let $firstjnlp := app:doc($href,$use-cache)
+            let $releases := for $release in $jnlp/release[not(status="dev")]
+                    let $location := $server-url || $release/location
+                    let $r := app:doc( $location || 'ApplicationRelease.xml', $use-cache)
+                    return
+                        map{$release/status : map{ "title": head(string($r//text)), "location":$location, "version":data($r//program/@version), "date":app:format-date(($r//pubDate)[1]) } }
+            return
+                map { $name : map{ "category": "Java", "icon-url" : ($firstjnlp//*:icon/@href)[1], "releases": map:merge($releases) } }
+        , for $module in app:get-softs()//pypi/module
+                let $name := data($module)
+                let $location := <url>https://pypi.org/pypi/{$name}</url>
+                let $json := app:json-doc(<url>https://pypi.org/pypi/{$name}/json</url>, $use-cache)
+                let $last := $json?urls?*
+                let $deployed := app:format-date( $last?upload_time )
+                let $version := replace(replace($last?filename, $module||"-",""),".tar.gz","")
+                return
+                    map{ $name : map{ "category": "Python", "releases": map{ "public": map{ "location":$location, "version":$version, "date":$deployed } } } }
+        , for $repo in app:get-softs()//repos/*
+                let $location := replace($repo/location, "/$","")
+                let $category := $repo/category
+                let $json  := if (name($repo)="github") then app:json-doc(replace($location, "github.com/", "api.github.com/repos/"), $use-cache) else ()
+                let $name := $json?name
+                let $json-release  := if (name($repo)="github") then app:json-doc(replace($location, "github.com/", "api.github.com/repos/")||"/releases", $use-cache)?*[1] else ()
+                let $deployed := app:format-date( $json-release?created_at )
+                let $version := $json-release?name
+                let $title := $json?description
+                return
+                    map{ $name : map{"category": $category, "releases": map{ "public" : map{ "location":$location, "version":$version, "date":$deployed, "title":$title } } } }
+        , for $app in app:get-softs()//web/app
+            let $name := data($app/name)
+            let $releases :=
+            for $release in $app/release
+                let $status := $release/status
+                let $location := $release/location
+                let $version := ()
+                let $deployed := ()
+                return
+                    map{ $status : map{ "location":$location, "version":$version, "date":$deployed , "icon-url" : $app/icon-url} }
+            return
+                map { $name : map{ "category": "Web", "releases" : map:merge($releases) } }
+        , for $app in app:get-softs()//exist/app
+            let $name := data($app/name)
+            let $releases :=
+            for $release in $app/release
+                let $status := $release/status
+                let $location := $release/location
+                let $repo := app:doc(<url>{$location}repo.xml</url>, $use-cache)
+                let $expath := app:doc(<url>{$location}expath-pkg.xml</url>, $use-cache)
+                let $deployed := app:format-date($repo//*:deployed)
+                let $version := $expath//@version || " " ||$repo//*:status
+                let $title := $expath//*:title
+                return
+                    map{ $status : map{ "title":$title, "location":$location, "version":$version, "date":$deployed } }
+            return
+                map { $name : map{ "category": "Web", "icon-url":$app/icon-url, "releases": map:merge($releases) } }
+        ))
+
+    return
+    <table class="table table-light table-bordered align-middle table-striped">
         <thead>
             <tr><th></th><th>Application</th><th>Release page</th><th>Version</th><th>Release date</th></tr>
         </thead>
         <tbody>
-        {
-            let $colspan := 5 return (
-            <tr><th colspan="{$colspan}" class="text-center">Java applications</th></tr>
-            ,for $jnlp in app:get-softs()//jnlp
-                let $name := $jnlp/name
-                let $server-url := $jnlp/ancestor::server/url
-                let $release := $jnlp/release[1]
-                let $href := $server-url || $release/location  || $name ||".jnlp"
-                let $firstjnlp := app:doc($href)
-                let $icon := if($firstjnlp//*:icon/@href) then <img width="64" height="64" src="{($firstjnlp//*:icon/@href)[1]}" alt="Logo"/> else ()
-                let $trs :=
-                    for $release in $jnlp/release[not(status="dev")]
-                        return
-                        try{
-                            let $location := $server-url || $release/location
-                            let $r := app:doc( $location || 'ApplicationRelease.xml')
-                            return
-                                <tr>
-                                {
-                                    for $td in (<a href="{$location}">{data($release/status)}</a>,data($r//program/@version), data($r//pubDate)[1])
-                                    return <td>{$td}</td>
-                                }
-                                </tr>
-                        } catch * {
-                            ()
-                        }
-                order by lower-case($name)
+        {   let $colspan := 5 return (
+            for $name in map:keys($apps)
+                let $app := map:get($apps, $name)
+                group by $category := string($app?category)
+                order by $category
                 return
                 (
-                    <tr><td rowspan="{count($trs)+1}" class="text-center">{$icon}</td><td rowspan="{count($trs)+1}" class="text-center">{data($name)}</td><td/><td/><td/></tr>
-                    , $trs
+                    <tr><th colspan="{$colspan}" class="text-center"><u>{$category} applications</u></th></tr>
+                    , for $gname in $name order by $gname
+                        let $gapp := map:get($apps, $gname)
+                        let $icon := if ($gapp?icon-url) then <img width="64" height="64" src="{$gapp?icon-url}" alt="Logo"/>else ()
+                        let $releases := $gapp?releases
+                        let $title := head($releases?*?title)
+                        let $names := map:keys($releases)
+                        let $release-names := <ul class="list-unstyled">{for $n in $names let $r:= $releases($n) return <li><a title="{$r?title}" href="{$r?location}">{$n}</a></li>}</ul>
+                        let $release-versions := <ul class="list-unstyled">{for $v in $releases?*?version return <li>{$v}</li>}</ul>
+                        let $release-dates := <ul class="list-unstyled">{for $d in $releases?*?date return <li>{$d}</li>}</ul>
+                        return
+                            <tr title="{$title}"><td>{$icon}</td><td>{$gname}</td><td>{$release-names}</td><td>{$release-versions}</td><td>{$release-dates}</td></tr>
                 )
-            ,<tr><th colspan="{$colspan}" class="text-center">Python applications</th></tr>
-            ,for $module in app:get-softs()//pypi/module
-                let $location := <url>https://pypi.org/pypi/{$module}</url>
-                let $json := app:json-doc(<url>https://pypi.org/pypi/{$module}/json</url>)
-                let $last := $json?urls?*
-                let $deployed := $last?upload_time
-                let $version := replace(replace($last?filename, $module||"-",""),".tar.gz","")
-                order by lower-case($module)
-                return
-                    <tr><td></td><td class="text-center">{data($module)}</td><td><a href="{$location}">public</a></td><td>{$version}</td><td>{$deployed}</td></tr>
-            ,<tr><th colspan="{$colspan}" class="text-center">Web applications</th></tr>
-            ,for $app in app:get-softs()//web/app
-                let $name := data($app/name)
-                let $icon := if($app/icon-url) then <img width="64" height="64" src="{$app/icon-url}" alt="Logo"/> else ()
-                let $trs :=
-                for $release in $app/release
-                    let $status := $release/status
-                    let $location := $release/location
-                    return
-                        <tr><td><a href="{$location}">{data($status)}</a></td><td></td><td></td></tr>
-                order by lower-case($name)
-                return (
-                    <tr><td rowspan="{count($trs)+1}" class="text-center">{$icon}</td><td rowspan="{count($trs)+1}" class="text-center">{data($name)}</td><td/><td/><td/></tr>
-                    ,$trs
-                )
-            ,for $app in app:get-softs()//exist/app
-                let $name := data($app/name)
-                let $icon := if($app/icon-url) then <img width="64" height="64" src="{$app/icon-url}" alt="Logo"/> else ()
-                let $trs :=
-                for $release in $app/release
-                    let $status := $release/status
-                    let $location := $release/location
-                    let $repo := app:doc(<url>{$location}repo.xml</url>)
-                    let $expath := app:doc(<url>{$location}expath-pkg.xml</url>)
-                    let $deployed := data($repo//*:deployed)
-                    let $version := $expath//@version || " " ||$repo//*:status
-                    let $title := $expath//*:title
-                    return
-                        <tr title="{$title}"><td><a href="{$location}">{data($status)}</a></td><td>{$version}</td><td>{$deployed}</td></tr>
-                order by lower-case($name)
-                return (
-                    <tr><td rowspan="{count($trs)+1}" class="text-center">{$icon}</td><td rowspan="{count($trs)+1}" class="text-center">{data($name)}</td><td/><td/><td/></tr>
-                    ,$trs
-                )
-
         )}
         </tbody>
     </table>
+};
+
+declare function app:updates-remote-resources(){
+    util:log("info", "app:updates-remote-resources()"),
+    cache:put($app:cache-name ,$app:cache-table-key, app:release-table(false()))
+};
+
+
+declare %private function app:start-job($resource as xs:string, $name as xs:string, $params as map(*)) as xs:boolean {
+    let $params := <parameters> {
+        for $key in map:keys($params)
+        return <param name="{ $key }" value="{ map:get($params, $key) }"/>
+    } </parameters>
+
+    let $log := util:log("info", "starting job : "|| $resource || " as " || $name )
+
+    let $status := util:eval(xs:anyURI('schedule-job.xql'), false(), (
+        xs:QName('resource'), $resource,
+        xs:QName('name'),     $name,
+        xs:QName('params'),   $params))
+    return name($status) = 'success'
 };
