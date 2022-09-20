@@ -1,2 +1,2 @@
 # releases
-Handle releases.jmmc.fr web pages
+Handle [releases.jmmc.fr](//releases.jmmc.fr) web pages
