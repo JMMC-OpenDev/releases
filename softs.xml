@@ -35,6 +35,13 @@
             </release>
         </app>
         <app>
+            <name>Releases</name>
+            <release>
+                <status>public</status>
+                <location>https://releases.jmmc.fr/</location>
+            </release>
+        </app>
+        <app>
             <name>VOAR</name>
             <icon-url>http://voar.jmmc.fr/resources/images/voar49x64.png</icon-url>
             <release>

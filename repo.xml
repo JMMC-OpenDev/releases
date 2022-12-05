@@ -11,4 +11,14 @@
   <target>releases</target>
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
+  <changelog>
+         <change xmlns="" version="1.1.1">
+           <h3>Protection and release notes setup 2022-12-05</h3>
+           <ul>
+             <li>Store release notes in repo.xml</li>
+             <li>Setup a robots.txt</li>
+           </ul>
+         </change>
+    </changelog>
+
 </meta>
