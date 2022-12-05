@@ -13,6 +13,13 @@
     <!-- list public existdb applications -->
     <exist>
         <app>
+            <name>A2P2W</name>
+            <release>
+                <status>public</status>
+                <location>https://a2p2w.jmmc.fr/</location>
+            </release>
+        </app>
+        <app>
             <name>CatalogAPI</name>
             <release>
                 <status>public</status>
@@ -23,6 +30,13 @@
                 <location>http://oidb-beta.jmmc.fr/exist/apps/catalogs/</location>
             </release>
         </app>
+        <!-- app>
+            <name>DataModels</name>
+            <release>
+                <status>public</status>
+                <location>https://exist.jmmc.fr/datamodels/</location>
+            </release>
+          </app -->
         <app>
             <name>SearchFTT</name>
             <release>
@@ -34,7 +48,7 @@
                 <location>https://searchftt-beta.jmmc.fr/</location>
             </release>
         </app>
-        <app>
+       <app>
             <name>Releases</name>
             <release>
                 <status>public</status>
