@@ -17,6 +17,7 @@
            <ul>
              <li>Store release notes in repo.xml</li>
              <li>Setup a robots.txt</li>
+             <li>Add JNLP and JAR links for java apps</li>
              <li>Fix some typos</li>
            </ul>
          </change>
