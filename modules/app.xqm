@@ -14,9 +14,8 @@ import module namespace lib="http://exist-db.org/xquery/html-templating/lib";
 import module namespace config="http://exist.jmmc.fr/releases/apps/releases/config" at "config.xqm";
 
 declare variable $app:cache-name := "releasecache";
-declare variable $app:cache-expire-delay-seconds := 120;
-declare variable $app:cache := cache:create($app:cache-name, map { "maximumSize": 1000 });
 declare variable $app:cache-last-mods-key := "last-mod";
+declare variable $app:cache-expire-delay-seconds := 120;
 declare variable $app:cache-table-key := "whole-table";
 
 declare %templates:wrap function app:dyn-nav-li($node as node(), $model as map(*)) {
@@ -41,11 +40,10 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*))
             let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
                 then
                     let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
-                    return <span>This page is beiing refresh in background.</span>
-                else
-                    <span></span>
+                    return <span>&#160;🍃 this page version was cached and seems too old. It is now beiing refreshed in background.</span>
+                else ()
             return
-                (<pre>Current date: {app:format-date(current-dateTime())} Generated on: {app:format-date($last-mods)}</pre>, $plan-refresh)
+                (<pre>Current date: {app:format-date(current-dateTime())} Generated on: {app:format-date($last-mods)}{$plan-refresh}</pre>)
         }
     </div>
 };
@@ -92,14 +90,23 @@ declare function app:release-table($use-cache as xs:boolean){
         for $jnlp in app:get-softs()//jnlp
             let $name := $jnlp/name
             let $server-url := $jnlp/ancestor::server/url
-            let $release := $jnlp/release[1]
-            let $href := $server-url || $release/location  || $name ||".jnlp"
-            let $firstjnlp := app:doc($href,$use-cache)
+            let $firstjnlp := app:doc($server-url || $jnlp/release[1]/location  || $name ||".jnlp",$use-cache)
             let $releases := for $release in $jnlp/release[not(status="dev")]
                     let $location := $server-url || $release/location
                     let $r := app:doc( $location || 'ApplicationRelease.xml', $use-cache)
+                    let $version := data($r//program/@version)
+                    let $jnlp-url := $location||$name||'.jnlp'
+                    let $jar-url := $location||$name||"-"|| translate($version, " ", "") ||'.jar' (: try to mimic jar name format :)
+                    let $version  := <div class="d-flex justify-content-between">
+                        <span>{$version}</span>
+                        <span>
+                            <a  href="{$jnlp-url}">JNLP</a>&#160;
+                            <a  href="{$jar-url}">JAR</a>
+                        </span>
+                    </div>
+
                     return
-                        map{$release/status : map{ "title": head(string($r//text)), "location":$location, "version":data($r//program/@version), "date":app:format-date(($r//pubDate)[1]) } }
+                        map{$release/status : map{ "title": head(string($r//text)), "location":$location, "version": $version, "date":app:format-date(($r//pubDate)[1]) } }
             return
                 map { $name : map{ "category": "Java", "icon-url" : ($firstjnlp//*:icon/@href)[1], "releases": map:merge($releases) } }
         , for $module in app:get-softs()//pypi/module
