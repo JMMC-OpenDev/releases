@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<meta 
+<meta
   xmlns="http://exist-db.org/xquery/repo">
   <description>JMMC applications's latest releases</description>
   <author>JMMC Tech Group</author>
@@ -17,6 +17,7 @@
            <ul>
              <li>Store release notes in repo.xml</li>
              <li>Setup a robots.txt</li>
+             <li>Fix some typos</li>
            </ul>
          </change>
     </changelog>
