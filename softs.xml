@@ -54,6 +54,10 @@
                 <status>public</status>
                 <location>https://releases.jmmc.fr/</location>
             </release>
+            <release>
+                <status>beta</status>
+                <location>https://releases-beta.jmmc.fr/</location>
+            </release>
         </app>
         <app>
             <name>VOAR</name>
