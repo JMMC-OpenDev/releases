@@ -29,7 +29,7 @@ declare function app:get-softs(){
 declare %templates:wrap function app:releases($node as node(), $model as map(*)) {
     <div>
         <h1>JMMC's applications and services releases</h1>
-        <p>Please find below public and beta links to run our Java applications (JAR or JavaWebStart) , get release notes, credits, details...</p>
+        <p>Please find below public and beta application links to run our Web, Python or Java applications (JAR or JavaWebStart), get release notes, credits, details...</p>
         {
             let $t := cache:get($app:cache-name, $app:cache-table-key)
             return
