@@ -18,6 +18,10 @@
                 <status>public</status>
                 <location>https://a2p2w.jmmc.fr/</location>
             </release>
+            <release>
+                <status>beta</status>
+                <location>https://a2p2w-beta.jmmc.fr/</location>
+            </release>
         </app>
         <app>
             <name>CatalogAPI</name>
@@ -65,6 +69,10 @@
             <release>
                 <status>public</status>
                 <location>https://voar.jmmc.fr/</location>
+            </release>
+            <release>
+                <status>beta</status>
+                <location>https://voar-beta.jmmc.fr/</location>
             </release>
         </app>
         <app>
@@ -132,7 +140,7 @@
         </app>
     </web>
     <server>
-        <url>http://www.jmmc.fr</url>
+        <url>https://www.jmmc.fr</url>
         <jnlp>
             <name>AppLauncher</name>
             <release>
@@ -229,17 +237,17 @@
                 <status>public</status>
                 <oldlocation>/~sclws/SearchCal/</oldlocation>
                 <location>/apps/public/SearchCal/</location>
-                <comment>public ([[http://www.jmmc.fr/~sclws/sclws_proxy.php][server proxy]] relaying tcp/8079 server)</comment>
+                <comment>public ([[https://www.jmmc.fr/~sclws/sclws_proxy.php][server proxy]] relaying tcp/8079 server)</comment>
             </release>
             <release>
                 <status>beta</status>
                 <location>/apps/beta/SearchCal/</location>
-                <comment>beta ([[http://www.jmmc.fr/apps/beta/sclws_proxy.php][server proxy]] relaying tcp/7079 server)</comment>
+                <comment>beta ([[https://www.jmmc.fr/apps/beta/sclws_proxy.php][server proxy]] relaying tcp/7079 server)</comment>
             </release>
             <release>
                 <status>dev</status>
                 <location>/apps/alpha/SearchCal/</location>
-                <comment>Development only ([[http://www.jmmc.fr/apps/beta/sclws_proxy.php][server proxy]] relaying secret port server)</comment>
+                <comment>Development only ([[https://www.jmmc.fr/apps/beta/sclws_proxy.php][server proxy]] relaying secret port server)</comment>
             </release>
         </jnlp>
     </server>
