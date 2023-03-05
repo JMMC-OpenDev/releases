@@ -27,11 +27,11 @@
             <name>CatalogAPI</name>
             <release>
                 <status>public</status>
-                <location>http://oidb.jmmc.fr/exist/apps/catalogs/</location>
+                <location>https://oidb.jmmc.fr/exist/apps/catalogs/</location>
             </release>
             <release>
                 <status>beta</status>
-                <location>http://oidb-beta.jmmc.fr/exist/apps/catalogs/</location>
+                <location>https://oidb-beta.jmmc.fr/exist/apps/catalogs/</location>
             </release>
         </app>
         <!-- app>
@@ -65,7 +65,7 @@
         </app>
         <app>
             <name>VOAR</name>
-            <icon-url>http://voar.jmmc.fr/resources/images/voar49x64.png</icon-url>
+            <icon-url>https://voar.jmmc.fr/resources/images/voar49x64.png</icon-url>
             <release>
                 <status>public</status>
                 <location>https://voar.jmmc.fr/</location>
@@ -88,7 +88,7 @@
         </app>
         <app>
             <name>OiDB</name>
-            <icon-url>http://oidb.jmmc.fr/resources/images/oidb-7-tr.png</icon-url>
+            <icon-url>https://oidb.jmmc.fr/resources/images/oidb-7-tr.png</icon-url>
             <release>
                 <status>public</status>
                 <location>https://oidb.jmmc.fr/</location>
@@ -113,7 +113,7 @@
             <name>BadCal</name>
             <release>
                 <status>public</status>
-                <location>http://jmmc.fr/badcal/</location>
+                <location>https://jmmc.fr/badcal/</location>
             </release>
         </app>
         <app>
@@ -124,7 +124,7 @@
             </release>
             <release>
                 <status>beta</status>
-                <location>http://apps.jmmc.fr/~betaswmgr/getstar/</location>
+                <location>https://apps.jmmc.fr/~betaswmgr/getstar/</location>
             </release>
         </app>
         <app>
