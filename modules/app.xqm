@@ -12,6 +12,7 @@ module namespace app="http://exist.jmmc.fr/releases/apps/releases/templates";
 import module namespace templates="http://exist-db.org/xquery/html-templating";
 import module namespace lib="http://exist-db.org/xquery/html-templating/lib";
 import module namespace config="http://exist.jmmc.fr/releases/apps/releases/config" at "config.xqm";
+import module namespace jmmc-dateutil="http://exist.jmmc.fr/jmmc-resources/dateutil";
 
 declare variable $app:cache-name := "releasecache";
 declare variable $app:cache-last-mods-key := "last-mod";
@@ -26,21 +27,21 @@ declare function app:get-softs(){
     doc($config:app-root||"/softs.xml")/*
 };
 
-declare %templates:wrap function app:releases($node as node(), $model as map(*)) {
+declare %templates:wrap function app:releases($node as node(), $model as map(*), $refresh as xs:string*) {
     <div>
         <h1>JMMC's applications and services releases</h1>
         <p>Please find below public and beta application links to run our Web, Python or Java applications (JAR or JavaWebStart), get release notes, credits, details...</p>
         {
             let $t := cache:get($app:cache-name, $app:cache-table-key)
             return
-                if(exists($t)) then $t else app:release-table(true())
+                if(exists($t)) then $t else app:release-table( empty($refresh) )
             ,
             let $last-mods := xs:dateTime(cache:get($app:cache-name, $app:cache-last-mods-key))
             let $delay := (current-dateTime() - $last-mods) div xs:dayTimeDuration('PT1S')
             let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
                 then
                     let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
-                    return <span>&#160;🍃 this page version was cached and seems too old. It is now beiing refreshed in background.</span>
+                    return <span>&#160;🍃 this page was cached and is now beiing refreshed in background.</span>
                 else ()
             return
                 (<pre>Current date: {app:format-date(current-dateTime())} Generated on: {app:format-date($last-mods)}{$plan-refresh}</pre>)
@@ -53,7 +54,12 @@ declare function app:format-date($date){
     let $input := string($date)
     return
         <span title="{$input}">{
-            if(contains($input, "-")) then substring($input, 1,16) else $input
+            if(contains($input, "-")) then
+                substring($input, 1,16)
+            else if ( contains($input, ",") ) then
+                substring(string(jmmc-dateutil:RFC822toISO8601($input)), 1,16)
+            else
+                $input
         }</span>
 };
 
@@ -85,17 +91,36 @@ declare function app:doc($href as xs:string,$use-cache as xs:boolean)
             return $val
 };
 
+declare function app:last-modified($href as xs:string,$use-cache as xs:boolean)
+{
+    let $header := "last-modified"
+    let $key := data('head' || $href)
+    let $val := cache:get($app:cache-name, $key)
+    return
+        if(exists($val) and $use-cache) then $val
+        else
+            let $log := util:log("info", "cache refreshed to get " || $href)
+            let $val := hc:send-request(<hc:request method="head" href="{$href}"/>)//hc:*[@name=$header]/@value/string()
+            let $store := cache:put($app:cache-name, $key, $val)
+            let $last-mods := cache:put($app:cache-name, $app:cache-last-mods-key, current-dateTime())
+            return $val
+};
+
+
 declare function app:release-table($use-cache as xs:boolean){
     let $apps := map:merge((
         for $jnlp in app:get-softs()//jnlp
             let $name := $jnlp/name
             let $server-url := $jnlp/ancestor::server/url
-            let $firstjnlp := app:doc($server-url || $jnlp/release[1]/location  || $name ||".jnlp",$use-cache)
+            let $firstjnlp-href := $server-url || $jnlp/release[1]/location  || $name ||".jnlp"
+            let $firstjnlp := app:doc($firstjnlp-href, $use-cache)
+
             let $releases := for $release in $jnlp/release[not(status="dev")]
                     let $location := $server-url || $release/location
                     let $r := app:doc( $location || 'ApplicationRelease.xml', $use-cache)
                     let $version := data($r//program/@version)
                     let $jnlp-url := $location||$name||'.jnlp'
+                    let $last-modified := app:last-modified($jnlp-url, $use-cache)
                     let $jar-url := $location||$name||"-"|| translate($version, " ", "") ||'.jar' (: try to mimic jar name format :)
                     let $version  := <div class="d-flex justify-content-between">
                         <span>{$version}</span>
@@ -106,9 +131,10 @@ declare function app:release-table($use-cache as xs:boolean){
                     </div>
 
                     return
-                        map{$release/status : map{ "title": head(string($r//text)), "location":$location, "version": $version, "date":app:format-date(($r//pubDate)[1]) } }
+                        map{$release/status : map{ "title": head(string($r//text)), "location":$location, "version": $version, "date":app:format-date($last-modified) } }
+            let $icon-url := try { ($firstjnlp//*:icon/@href)[1] }catch * { () }
             return
-                map { $name : map{ "category": "Java", "icon-url" : ($firstjnlp//*:icon/@href)[1], "releases": map:merge($releases) } }
+                map { $name : map{ "category": "Java", "icon-url" : $icon-url, "releases": map:merge($releases) } }
         , for $module in app:get-softs()//pypi/module
                 let $name := data($module)
                 let $location := <url>https://pypi.org/pypi/{$name}</url>
@@ -174,7 +200,7 @@ declare function app:release-table($use-cache as xs:boolean){
                     <tr><th colspan="{$colspan}" class="text-center"><u>{$category} applications</u></th></tr>
                     , for $gname in $name order by $gname
                         let $gapp := map:get($apps, $gname)
-                        let $icon := if ($gapp?icon-url) then <img width="64" height="64" src="{$gapp?icon-url}" alt="Logo"/>else ()
+                        let $icon := if ($gapp?icon-url) then <img width="64" height="64" src="{replace($gapp?icon-url,"http:","https:")}" alt="Logo"/>else ()
                         let $releases := $gapp?releases
                         let $title := head($releases?*?title)
                         let $names := map:keys($releases)
