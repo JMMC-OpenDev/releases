@@ -41,7 +41,7 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*),
             let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
                 then
                     let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
-                    return <span>&#160;🍃 this page was cached and is now beiing refreshed in background.</span>
+                    return <span>&#160;🍃 this page was cached and is refreshing in background.</span>
                 else ()
             return
                 (<pre>Current date: {app:format-date(current-dateTime())} Generated on: {app:format-date($last-mods)}{$plan-refresh}</pre>)
