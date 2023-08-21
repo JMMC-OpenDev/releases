@@ -85,7 +85,7 @@ declare function app:doc($href as xs:string,$use-cache as xs:boolean)
         if(exists($val) and $use-cache) then $val
         else
             let $log := util:log("info", "cache refreshed to get " || $href)
-            let $val := doc($href)
+            let $val := try{doc($href)}catch *{util:log("info", "error getting " || $href),<e><program version="ERROR"/></e>}
             let $store := cache:put($app:cache-name, $key, $val)
             let $last-mods := cache:put($app:cache-name, $app:cache-last-mods-key, current-dateTime())
             return $val
