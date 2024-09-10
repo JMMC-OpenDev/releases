@@ -122,12 +122,13 @@ declare function app:release-table($use-cache as xs:boolean){
                     let $jnlp-url := $location||$name||'.jnlp'
                     let $last-modified := app:last-modified($jnlp-url, $use-cache)
                     let $jar-url := $location||$name||"-"|| translate($version, " ", "") ||'.jar' (: try to mimic jar name format :)
-                    let $version  := <div class="d-flex justify-content-between">
+                    let $version  := <div class="d-flex justify-content-between text-nowrap">
                         <span>{$version}</span>
-                        <span>
-                            <a  href="{$jnlp-url}">JNLP</a>&#160;
-                            <a  href="{$jar-url}">JAR</a>
-                        </span>
+                        <span><small>
+                            <a  href="{$jnlp-url}">jnlp</a>&#160;
+                            <a  href="{$jar-url}">jar</a>
+
+                        </small></span>
                     </div>
 
                     return
