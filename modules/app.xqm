@@ -51,6 +51,7 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*),
 
 
 declare function app:format-date($date){
+    try {
     let $input := string($date)
     return
         <span title="{$input}">{
@@ -60,7 +61,10 @@ declare function app:format-date($date){
                 substring(string(jmmc-dateutil:RFC822toISO8601($input)), 1,16)
             else
                 $input
-        }</span>
+        }</span>    
+    } catch * {
+            <span title="missing date">ERROR retrieving date</span>    
+    }
 };
 
 declare function app:json-doc($href as xs:string, $use-cache as xs:boolean)
@@ -140,9 +144,9 @@ declare function app:release-table($use-cache as xs:boolean){
                 let $name := data($module)
                 let $location := <url>https://pypi.org/pypi/{$name}</url>
                 let $json := app:json-doc(<url>https://pypi.org/pypi/{$name}/json</url>, $use-cache)
-                let $last := $json?urls?*
+                let $last := $json?urls?*[contains(.?filename,".gz")]
                 let $deployed := app:format-date( $last?upload_time )
-                let $version := replace(replace($last?filename, $module||"-",""),".tar.gz","")
+                let $version := $json?info?version
                 return
                     map{ $name : map{ "category": "Python", "releases": map{ "public": map{ "location":$location, "version":$version, "date":$deployed } } } }
         , for $repo in app:get-softs()//repos/*

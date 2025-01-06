@@ -12,6 +12,12 @@
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
   <changelog>
+         <change xmlns="" version="1.1.6">
+           <h3>2024-09-10</h3>
+           <ul>
+             <li>Bugfix retrieving information on pypi with more than one url.</li>
+           </ul>
+         </change>
          <change xmlns="" version="1.1.5">
            <h3>2024-09-10</h3>
            <ul>
