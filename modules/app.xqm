@@ -206,6 +206,7 @@ declare function app:release-table($use-cache as xs:boolean){
         ))
 
     return
+    <div class="table-responsive">
     <table class="table table-light table-bordered align-middle table-striped">
         <thead>
             <tr><th></th><th>Application</th><th>Release page</th><th>Version</th><th>Release/deploy date</th></tr>
@@ -229,11 +230,14 @@ declare function app:release-table($use-cache as xs:boolean){
                         let $release-versions := <ul class="list-unstyled">{for $v in $releases?*?version return <li>{$v}</li>}</ul>
                         let $release-dates := <ul class="list-unstyled">{for $d in $releases?*?date return <li>{$d}</li>}</ul>
                         return
-                            <tr title="{$title}"><td>{$icon}</td><td>{$gname}</td><td>{$release-names}</td><td>{$release-versions}</td><td>{$release-dates}</td></tr>
+                            (<tr data-bs-toggle="collapse" data-bs-target="#r{$gname}" title="{$title}"><td>{$icon}</td><td>{$gname}</td><td>{$release-names}</td><td>{$release-versions}</td><td>{$release-dates}</td></tr>
+                            ,<tr><td class="collapse" colspan="{$colspan}"></td></tr>
+                            ,<tr class="collapse" id="r{$gname}"><td colspan="{$colspan}">{$title}</td></tr>)
                 )
         )}
         </tbody>
     </table>
+    </div>
 };
 
 declare function app:updates-remote-resources(){
