@@ -12,54 +12,54 @@
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
   <changelog>
-         <change xmlns="" version="1.1.7"
-           <h3>2025-03-19</h3>
-           <ul>
-             <li>Update Getstar endpoints.</li>
-             <li>Support dynamic version and deploy-date from softs.xml.</li>
-           </ul>
-         </change>
-         <change xmlns="" version="1.1.6">
-           <h3>2024-09-10</h3>
-           <ul>
-             <li>Bugfix retrieving information on pypi with more than one url.</li>
-           </ul>
-         </change>
-         <change xmlns="" version="1.1.5">
-           <h3>2024-09-10</h3>
-           <ul>
-             <li>Improve css for jnlp and jar links.</li>
-           </ul>
-         </change>
-         <change xmlns="" version="1.1.4">
-           <h3>2023-07-12</h3>
-           <ul>
-             <li>Improve reliability looping on the service loop ignoring some broken ones.</li>
-           </ul>
-         </change>
-          <change xmlns="" version="1.1.3">
-           <h3>2023-03-05</h3>
-           <ul>
-             <li>Fix last urls to https</li>
-             <li>Replace release date of java application by the last-modified value of the jnlp file</li>
-           </ul>
-         </change>
-          <change xmlns="" version="1.1.2">
-           <h3>2023-03-01</h3>
-           <ul>
-             <li>Move some http urls to https</li>
-             <li>Add a2p2w and voar beta locations</li>
-           </ul>
-         </change>
-         <change xmlns="" version="1.1.1">
-           <h3>Protection and release notes setup 2022-12-05</h3>
-           <ul>
-             <li>Store release notes in repo.xml</li>
-             <li>Setup a robots.txt</li>
-             <li>Add JNLP and JAR links for java apps</li>
-             <li>Fix some typos</li>
-           </ul>
-         </change>
+    <change xmlns="" version="1.1.7">
+      <h3>2025-03-19</h3>
+      <ul>
+        <li>Update Getstar endpoints.</li>
+        <li>Support dynamic version and deploy-date from softs.xml.</li>
+      </ul>
+    </change>
+    <change xmlns="" version="1.1.6">
+      <h3>2024-09-10</h3>
+      <ul>
+        <li>Bugfix retrieving information on pypi with more than one url.</li>
+      </ul>
+    </change>
+    <change xmlns="" version="1.1.5">
+      <h3>2024-09-10</h3>
+      <ul>
+        <li>Improve css for jnlp and jar links.</li>
+      </ul>
+    </change>
+    <change xmlns="" version="1.1.4">
+      <h3>2023-07-12</h3>
+      <ul>
+        <li>Improve reliability looping on the service loop ignoring some broken ones.</li>
+      </ul>
+    </change>
+     <change xmlns="" version="1.1.3">
+      <h3>2023-03-05</h3>
+      <ul>
+        <li>Fix last urls to https</li>
+        <li>Replace release date of java application by the last-modified value of the jnlp file</li>
+      </ul>
+    </change>
+     <change xmlns="" version="1.1.2">
+      <h3>2023-03-01</h3>
+      <ul>
+        <li>Move some http urls to https</li>
+        <li>Add a2p2w and voar beta locations</li>
+      </ul>
+    </change>
+    <change xmlns="" version="1.1.1">
+      <h3>Protection and release notes setup 2022-12-05</h3>
+      <ul>
+        <li>Store release notes in repo.xml</li>
+        <li>Setup a robots.txt</li>
+        <li>Add JNLP and JAR links for java apps</li>
+        <li>Fix some typos</li>
+      </ul>
+    </change>
     </changelog>
 
 </meta>
