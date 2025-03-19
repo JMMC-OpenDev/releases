@@ -12,6 +12,13 @@
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
   <changelog>
+         <change xmlns="" version="1.1.7"
+           <h3>2025-03-19</h3>
+           <ul>
+             <li>Update Getstar endpoints.</li>
+             <li>Support dynamic version and deploy-date from softs.xml.</li>
+           </ul>
+         </change>
          <change xmlns="" version="1.1.6">
            <h3>2024-09-10</h3>
            <ul>
