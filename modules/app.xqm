@@ -38,7 +38,7 @@ declare %templates:wrap function app:releases($node as node(), $model as map(*),
             ,
             let $last-mods := xs:dateTime(cache:get($app:cache-name, $app:cache-last-mods-key))
             let $delay := (current-dateTime() - $last-mods) div xs:dayTimeDuration('PT1S')
-            let $plan-refresh := if( $delay > $app:cache-expire-delay-seconds )
+            let $plan-refresh := if( request:get-parameter("force",false())  or $delay > $app:cache-expire-delay-seconds )
                 then
                     let $start-job := app:start-job($config:app-root || '/modules/update.xql', "update", map{})
                     return <span>&#160;🍃 this page was cached and is refreshing in background.</span>
@@ -61,9 +61,9 @@ declare function app:format-date($date){
                 substring(string(jmmc-dateutil:RFC822toISO8601($input)), 1,16)
             else
                 $input
-        }</span>    
+        }</span>
     } catch * {
-            <span title="missing date">ERROR retrieving date</span>    
+            <span title="missing date">ERROR retrieving date</span>
     }
 };
 
@@ -89,7 +89,11 @@ declare function app:doc($href as xs:string,$use-cache as xs:boolean)
         if(exists($val) and $use-cache) then $val
         else
             let $log := util:log("info", "cache refreshed to get " || $href)
-            let $val := try{doc($href)}catch *{util:log("info", "error getting " || $href),<e><program version="ERROR"/></e>}
+            let $val := try{
+                    try{ doc($href) }catch *{ tail(hc:send-request(<hc:request href="{$href}" method="get"/>)) }
+                }catch *{
+                    util:log("info", "error getting " || $href),<e><program version="ERROR"/></e>
+                }
             let $store := cache:put($app:cache-name, $key, $val)
             let $last-mods := cache:put($app:cache-name, $app:cache-last-mods-key, current-dateTime())
             return $val
@@ -166,8 +170,20 @@ declare function app:release-table($use-cache as xs:boolean){
             for $release in $app/release
                 let $status := $release/status
                 let $location := $release/location
-                let $version := ()
-                let $deployed := ()
+                let $metadoc := if(exists($release/metadoc))
+                    then
+                        try{
+                            let $metadoc := $release/metadoc
+                            let $doc := app:doc($release/location||$metadoc/@url, true())
+                            return <meta><version>{util:eval-inline($doc,$metadoc/@version)}</version><deployed>{util:eval-inline($doc,$metadoc/@deployed)}</deployed></meta>
+                        }catch *{
+                            util:log("error", $err:description)
+                            ,()
+                        }
+                    else ()
+                let $log := util:log("info", $metadoc)
+                let $version := data($metadoc/version)
+                let $deployed := app:format-date( $metadoc/deployed )
                 return
                     map{ $status : map{ "location":$location, "version":$version, "date":$deployed , "icon-url" : $app/icon-url} }
             return
