@@ -120,11 +120,19 @@
             <name>GetStar</name>
             <release>
                 <status>public</status>
-                <location>https://www.jmmc.fr/english/tools/proposal-preparation/getstar-61/</location>
+                <location>https://sclws.jmmc.fr/</location>
+                <metadoc url="/sclwsProxy.php"
+                    version="substring-after(tokenize(.//*:status, '&#10;')[starts-with(., 'version: ')], 'version: ')"
+                    deployed="substring-after(tokenize(.//*:status, '&#10;')[starts-with(., 'Server start: ')], 'Server start: ')"
+                />
             </release>
             <release>
                 <status>beta</status>
-                <location>https://apps.jmmc.fr/~betaswmgr/getstar/</location>
+                <location>https://sclws-beta.jmmc.fr/</location>
+                <metadoc url="/sclwsProxy.php"
+                    version="substring-after(tokenize(.//*:status, '&#10;')[starts-with(., 'version: ')], 'version: ')"
+                    deployed="substring-after(tokenize(.//*:status, '&#10;')[starts-with(., 'Server start: ')], 'Server start: ')"
+                />
             </release>
         </app>
         <app>
@@ -132,10 +140,18 @@
             <release>
                 <status>public</status>
                 <location>https://obs.jmmc.fr/</location>
+                <metadoc url="/health"
+                    version="//*:tr[./*:td='Version']/*:td[last()]"
+                    deployed="//*:tr[./*:td='Server start']/*:td[last()]"
+                />
             </release>
             <release>
                 <status>beta</status>
                 <location>https://obs-preprod.jmmc.fr/</location>
+                <metadoc url="/health"
+                    version="//*:tr[./*:td='Version']/*:td[last()]"
+                    deployed="//*:tr[./*:td='Server start']/*:td[last()]"
+                />
             </release>
         </app>
     </web>
