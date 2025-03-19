@@ -185,9 +185,9 @@ declare function app:release-table($use-cache as xs:boolean){
                 let $version := data($metadoc/version)
                 let $deployed := app:format-date( $metadoc/deployed )
                 return
-                    map{ $status : map{ "location":$location, "version":$version, "date":$deployed , "icon-url" : $app/icon-url} }
+                    map{ $status : map{ "location":$location, "version":$version, "date":$deployed }}
             return
-                map { $name : map{ "category": "Web", "releases" : map:merge($releases) } }
+                map { $name : map{ "category": "Web", "icon-url" : $app/icon-url, "releases" : map:merge($releases) } }
         , for $app in app:get-softs()//exist/app
             let $name := data($app/name)
             let $releases :=
@@ -208,7 +208,7 @@ declare function app:release-table($use-cache as xs:boolean){
     return
     <table class="table table-light table-bordered align-middle table-striped">
         <thead>
-            <tr><th></th><th>Application</th><th>Release page</th><th>Version</th><th>Release date</th></tr>
+            <tr><th></th><th>Application</th><th>Release page</th><th>Version</th><th>Release/deploy date</th></tr>
         </thead>
         <tbody>
         {   let $colspan := 5 return (
