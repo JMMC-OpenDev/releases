@@ -12,7 +12,7 @@
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
   <changelog>
-    <change xmlns="" version="1.1.7">
+    <change xmlns="" version="1.1.8">
       <h3>2025-03-19</h3>
       <ul>
         <li>Update Getstar endpoints.</li>
