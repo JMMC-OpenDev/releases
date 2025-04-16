@@ -230,7 +230,7 @@ declare function app:release-table($use-cache as xs:boolean){
                         let $release-versions := <ul class="list-unstyled">{for $v in $releases?*?version return <li>{$v}</li>}</ul>
                         let $release-dates := <ul class="list-unstyled">{for $d in $releases?*?date return <li>{$d}</li>}</ul>
                         return
-                            (<tr data-bs-toggle="collapse" data-bs-target="#r{$gname}" title="{$title}"><td>{$icon}</td><td>{$gname}</td><td>{$release-names}</td><td>{$release-versions}</td><td>{$release-dates}</td></tr>
+                            (<tr title="{$title}"><td data-bs-toggle="collapse" data-bs-target="#r{$gname}" >{$icon}</td><td data-bs-toggle="collapse" data-bs-target="#r{$gname}" >{$gname}</td><td>{$release-names}</td><td>{$release-versions}</td><td>{$release-dates}</td></tr>
                             ,<tr><td class="collapse" colspan="{$colspan}"></td></tr>
                             ,<tr class="collapse" id="r{$gname}"><td colspan="{$colspan}">{$title}</td></tr>)
                 )
