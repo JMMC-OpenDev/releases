@@ -12,6 +12,12 @@
   <prepare>pre-install.xq</prepare>
   <finish>post-install.xq</finish>
   <changelog>
+    <change xmlns="" version="1.1.9">
+      <h3>2025-04-16</h3>
+      <ul>
+        <li>Fix icon display.</li>
+      </ul>
+    </change>
     <change xmlns="" version="1.1.8">
       <h3>2025-03-19</h3>
       <ul>
